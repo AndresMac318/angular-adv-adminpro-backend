@@ -6,7 +6,7 @@ const validarJWT = (req, res, next) => {
     //leer el token
     const token = req.header('x-token');
 
-    console.log(token);
+    //console.log(token);
     
     if (!token) {
         return res.status(401).json({
@@ -21,7 +21,7 @@ const validarJWT = (req, res, next) => {
         const { uid } = jwt.verify(token, process.env.JWT_SECRET);
 
         //obtiene el uid del usuario loggeado
-        console.log(uid);
+        //*console.log(uid);
         req.uid = uid; //se establece info en la req
 
         next();

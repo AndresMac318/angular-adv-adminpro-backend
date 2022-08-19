@@ -4,14 +4,39 @@ const Usuario = require('../models/usuario.model');
 const { generateJWT } = require('../helpers/jwt');
 
 const getUsuarios = async (req, res) => {
-    
-    // const usuarios = await Usuario.find({}, 'nombre); filtra y devuele el id y el nombre
-    // const usuarios = await Usuario.find(); devuelve todo el contenido del registro
-    const usuarios = await Usuario.find({}, 'nombre email role google');
 
+    //? ***paginacion****************
+    const desde = Number(req.query.desde) || 0;
+
+    /*
+    //* const usuarios = await Usuario.find({}, 'nombre); filtra y devuele el id y el nombre
+    //* const usuarios = await Usuario.find(); devuelve todo el contenido del registro
+    const usuarios = await Usuario
+                          .find({}, 'nombre email role google')
+                          .skip(desde) //? desde q registro se van a traer
+                          .limit( 5 ); //? cuantos se deben traer
+
+    //* cuantos registros tengo en total
+    const count = await Usuario.count(); 
+    */
+
+    /* mas eficiente se ejecutan simultaneamente
+    *resolver dos funciones asincronas en una devuelve arreglo con respuestas en el orden en q se escriben
+    */
+    const [ usuarios, total] = await Promise.all([
+        //promesa 1
+        Usuario
+            .find({}, 'nombre email role google img')
+            .skip(desde) 
+            .limit( 5 ), 
+        //promesa 2
+        Usuario.countDocuments()
+    ])
+    
     res.json({
         ok: 'true',
         usuarios,
+        total
         // uid: req.uid //info traida del middleware validar-jwt
     });
 }

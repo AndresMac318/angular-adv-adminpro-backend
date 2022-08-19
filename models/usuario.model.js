@@ -37,11 +37,10 @@ const UsuarioSchema = Schema({//* definicion de cd registro que estara dentro de
 
 // ? se renombra como se guarda el _id == uid en la base de datos
 UsuarioSchema.method('toJSON', function(){
-    const {__v, _id, password, ...object} = this.toObject();
-    object.uid = _id;
+    const {__v, _id, password, ...object} = this.toObject();//se retira la version y el _id
+    object.uid = _id; //*se renombra el atributo de uid a "_id" o bien "id"
     return object;
 })
-
 
 //implementacion del modelo
 module.exports = model( 'Usuario', UsuarioSchema );
