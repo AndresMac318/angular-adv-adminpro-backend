@@ -4,8 +4,9 @@ require('dotenv').config();
 //declara la instancia de express
 const express = require('express');
 
-//cors
+//importacion cors
 const cors = require('cors');
+
 
 //importacion de la configuracion  de conexion a la db
 const { dbConnection } = require('./database/config');
@@ -15,6 +16,9 @@ const app = express();
 
 //configurar cors
 app.use(cors());
+
+//? carpeta publica: permite mostrar la pagina html 
+app.use( express.static('public') );
 
 //lectura y parseo
 app.use( express.json() );
