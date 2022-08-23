@@ -43,18 +43,86 @@ const createHospital = async(req , res = response) => {
 
 }
 
-const updateHospital = (req , res = response) => {
-    res.json({
-        ok: true,
-        msg: 'updateHospital'
-    })
+const updateHospital = async (req , res = response) => {
+
+    const id = req.params.id;
+
+    //*como se paso por la autenticacion del JWT se tiene 
+    const uid = req.uid;
+
+    try {
+
+        const hospitalDB = await Hospital.findById(id);
+
+        if(!hospitalDB) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'Hospital no encontrado por id'
+            });
+        }
+
+        //ya se sabe que el hospital existe, ahora se actualiza
+        /* 
+        ?si se va a cambiar un solo campo: 
+        hospital.nombre = req.body.nombre; */
+
+        //*Otra forma de actualizar seria ...
+        const cambiosHospital = {
+            ...req.body,
+            usuario: uid, //si otro admin diferente es quien actualiza, se actualiza
+        }
+
+        //* grabando en la mongo || {new : true} es para obtener el documento con los cambios recien realizados
+        const hospitalActualizado = await Hospital.findByIdAndUpdate(id, cambiosHospital, {new: true}) 
+        
+        res.json({
+            ok: true,
+            hospital: hospitalActualizado
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
 }
 
-const deleteHospital = (req , res = response) => {
-    res.json({
-        ok: true,
-        msg: 'deleteHospital'
-    })
+const deleteHospital = async (req , res = response) => {
+    
+    const id = req.params.id;
+
+    try {
+
+        const hospitalDB = await Hospital.findById(id);
+
+        if(!hospitalDB) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'Hospital no encontrado'
+            });
+        }
+
+        //* Eliminar el hospital de mongo
+        await Hospital.findByIdAndDelete( id );
+
+        /*
+        ! actualmente no se recomienda eliminar de la base de datos, mantener la integridad y ref de la db
+        ! lo recomendado es desabilitar una bandera, ej:  activo: false
+        */
+        res.json({
+            ok: true,
+            msg: 'Hospital eliminado'
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
 }
 
 module.exports = {
