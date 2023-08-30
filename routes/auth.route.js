@@ -31,7 +31,7 @@ router.post(
 )
 
 router.get(
-    '/renew', 
+    '/renew',
     validarJWT,
     renewToken
 )

@@ -4,21 +4,21 @@ const Usuario = require('../models/usuario.model');
 const { generateJWT } = require('../helpers/jwt');
 const { googleVerify } = require('../helpers/google-verify');
 
-const login = async ( req, res=response ) => {
+const login = async (req, res = response) => {
 
     const { email, password } = req.body;
 
     try {
 
         //verificar email
-        const usuarioDB = await Usuario.findOne({email});
+        const usuarioDB = await Usuario.findOne({ email });
         if (!usuarioDB) {
             return res.status(404).json({
                 ok: false,
                 msg: 'Email no valido'
             })
         }
-        
+
         //verificar contraseña
         const validPassword = bcrypt.compareSync(password, usuarioDB.password);
         if (!validPassword) {
@@ -35,7 +35,7 @@ const login = async ( req, res=response ) => {
             ok: true,
             token
         })
-        
+
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -45,12 +45,12 @@ const login = async ( req, res=response ) => {
     }
 }
 
-const googleSignIn = async ( req, res=response ) => {
+const googleSignIn = async (req, res = response) => {
 
     try {
-        const { email, name, picture } = await googleVerify( req.body.token );
+        const { email, name, picture } = await googleVerify(req.body.token);
 
-        const usuarioDB = await Usuario.findOne({email});
+        const usuarioDB = await Usuario.findOne({ email });
         let usuario;
 
         if (!usuarioDB) {
@@ -63,7 +63,7 @@ const googleSignIn = async ( req, res=response ) => {
             });
         } else {
             usuario = usuarioDB,
-            usuario.google = true
+                usuario.google = true
             //usuario.password = '@@'
         }
 
@@ -87,7 +87,7 @@ const googleSignIn = async ( req, res=response ) => {
         })
     }
 
-    
+
 }
 
 const renewToken = async (req, res = response) => {
@@ -97,9 +97,13 @@ const renewToken = async (req, res = response) => {
     //generar token - JWT 
     const token = await generateJWT(uid);
 
+    //obtener el usuario por uid
+    const usuario = await Usuario.findById(uid);
+
     res.json({
         ok: true,
-        token
+        token,
+        usuario
     })
 }
 
